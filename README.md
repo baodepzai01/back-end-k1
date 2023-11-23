@@ -1,1 +1,1 @@
-# back-end-k1
+# Dự án phần mềm quản lý lớp học(NodeJS Express + MySQL)
