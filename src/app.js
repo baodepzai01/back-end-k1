@@ -5,13 +5,40 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var expressLayouts = require("express-ejs-layouts");
+const passport = require("passport");
+const flash = require("connect-flash");
+const session = require("express-session");
+// const passport = require("passport");
 
 const studentsRouter = require("./routes/students/index");
 const teachersRouter = require("./routes/teacher/index");
 const adminRouter = require("./routes/admin/index");
 const authRouter = require("./routes/auth/index");
-var app = express();
 
+const localPassport = require("../src/http/passport/localPassport");
+
+var app = express();
+app.use(
+  session({
+    secret: "f8",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async function (id, done) {
+  const user = await model.User.findByPk(id);
+  done(null, user);
+});
+
+passport.use("local", localPassport);
 // view engine setup
 app.set("views", path.join(__dirname, "resources/views"));
 app.set("view engine", "ejs");
