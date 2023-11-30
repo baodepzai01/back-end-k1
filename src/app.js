@@ -8,7 +8,6 @@ var expressLayouts = require("express-ejs-layouts");
 const passport = require("passport");
 const flash = require("connect-flash");
 const session = require("express-session");
-// const passport = require("passport");
 
 const studentsRouter = require("./routes/students/index");
 const teachersRouter = require("./routes/teacher/index");
@@ -16,7 +15,8 @@ const adminRouter = require("./routes/admin/index");
 const authRouter = require("./routes/auth/index");
 
 const localPassport = require("../src/http/passport/localPassport");
-
+const googlePassport = require("../src/http/passport/googlePassport");
+var checkAuthMiddleware = require("./http/middlewares/checkAuth.middlewares");
 var app = express();
 app.use(
   session({
@@ -39,6 +39,7 @@ passport.deserializeUser(async function (id, done) {
 });
 
 passport.use("local", localPassport);
+passport.use("google", googlePassport);
 // view engine setup
 app.set("views", path.join(__dirname, "resources/views"));
 app.set("view engine", "ejs");
@@ -50,10 +51,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../public")));
 
+app.use("/auth", authRouter);
+app.use(checkAuthMiddleware);
 app.use("/", studentsRouter);
 app.use("/teacher", teachersRouter);
 app.use("/admin", adminRouter);
-app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
