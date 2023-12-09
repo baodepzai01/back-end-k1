@@ -8,6 +8,9 @@ var expressLayouts = require("express-ejs-layouts");
 const passport = require("passport");
 const flash = require("connect-flash");
 const session = require("express-session");
+const GitHubStrategy = require("passport-github").Strategy;
+
+const model = require("../src/models/index");
 
 const studentsRouter = require("./routes/students/index");
 const teachersRouter = require("./routes/teacher/index");
@@ -16,6 +19,9 @@ const authRouter = require("./routes/auth/index");
 
 const localPassport = require("../src/http/passport/localPassport");
 const googlePassport = require("../src/http/passport/googlePassport");
+const githubPassport = require("../src/http/passport/githubPassport");
+const facebookPassport = require("../src/http/passport/facebookPassport");
+
 var checkAuthMiddleware = require("./http/middlewares/checkAuth.middlewares");
 var app = express();
 app.use(
@@ -29,6 +35,9 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+GitHubStrategy.prototype.authorizationParams = function (options) {
+  return options || {};
+};
 passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
@@ -40,6 +49,8 @@ passport.deserializeUser(async function (id, done) {
 
 passport.use("local", localPassport);
 passport.use("google", googlePassport);
+passport.use("facebook", facebookPassport);
+passport.use("github", githubPassport);
 // view engine setup
 app.set("views", path.join(__dirname, "resources/views"));
 app.set("view engine", "ejs");
